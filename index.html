@@ -48,14 +48,17 @@
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth;overflow-x:hidden;width:100%;}
 body{
   font-family:var(--font-body);
   color:var(--ink);
   background:var(--ivory);
   overflow-x:hidden;
+  width:100%;
   font-weight:300;
   line-height:1.6;
+  overflow-wrap:break-word;
+  word-break:break-word;
 }
 img{max-width:100%;display:block;}
 a{color:inherit;text-decoration:none;}
@@ -177,11 +180,11 @@ section{position:relative;padding:120px 0;}
    ========================================================================== */
 #navbar{
   position:fixed;top:0;left:0;right:0;z-index:500;
-  padding:22px 0;
+  padding:calc(22px + env(safe-area-inset-top)) 0 22px;
   transition:padding .4s var(--ease), background .4s var(--ease), box-shadow .4s;
 }
 #navbar.scrolled{
-  padding:12px 0;
+  padding:calc(12px + env(safe-area-inset-top)) 0 12px;
   background:rgba(251,246,238,.85);
   backdrop-filter:blur(14px);
   box-shadow:0 4px 24px -8px rgba(51,47,40,.15);
@@ -260,15 +263,6 @@ section{position:relative;padding:120px 0;}
 .countdown .num{font-family:var(--font-display);font-size:1.9rem;display:block;}
 .countdown .label{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;opacity:.85;}
 
-.scroll-indicator{
-  position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
-  z-index:2;color:var(--paper);display:flex;flex-direction:column;align-items:center;gap:8px;
-  font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;opacity:.9;
-  text-shadow:0 1px 6px rgba(0,0,0,.5);
-}
-.scroll-line{width:1px;height:36px;background:linear-gradient(var(--paper),transparent);animation:scrolldrop 1.8s infinite;}
-@keyframes scrolldrop{0%{transform:scaleY(0);transform-origin:top;}50%{transform:scaleY(1);transform-origin:top;}51%{transform-origin:bottom;}100%{transform:scaleY(0);transform-origin:bottom;}}
-
 /* ==========================================================================
    INVITATION MESSAGE
    ========================================================================== */
@@ -296,7 +290,8 @@ section{position:relative;padding:120px 0;}
 .detail-row:last-child{border-bottom:none;}
 .detail-row i{color:var(--gold);width:18px;padding-top:3px;}
 .detail-row .dr-label{color:var(--ink-soft);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;display:block;}
-.attire-swatches{display:flex;gap:10px;padding:12px 0 4px 30px;}
+.detail-row-attire{border-bottom:none;}
+.attire-swatches{display:flex;gap:10px;margin-top:12px;}
 .attire-swatch{width:20px;height:20px;border-radius:50%;box-shadow:0 0 0 2px var(--paper),0 2px 6px rgba(0,0,0,.15);}
 
 /* wedding party */
@@ -392,15 +387,17 @@ section{position:relative;padding:120px 0;}
   animation:gallery-scroll linear infinite;
 }
 .gallery-track img{
-  height:150px;width:auto;flex:0 0 auto;
+  height:150px;width:150px;flex:0 0 auto;
   border-radius:var(--radius-md);
   object-fit:cover;
   cursor:pointer;
   box-shadow:var(--shadow-card);
+  background:var(--ivory-deep);
   transition:transform .4s var(--ease), filter .4s;
 }
 .gallery-track img:hover{transform:scale(1.03) translateY(-4px);filter:brightness(1.04);}
 .gallery-marquee-wrap:hover .gallery-track{animation-play-state:paused;}
+.gallery-track.paused{animation-play-state:paused;}
 @keyframes gallery-scroll{
   from{transform:translateX(0);}
   to{transform:translateX(-50%);}
@@ -409,7 +406,8 @@ section{position:relative;padding:120px 0;}
 .gallery-marquee-fade-l{left:0;background:linear-gradient(90deg,var(--ivory-deep),transparent);}
 .gallery-marquee-fade-r{right:0;background:linear-gradient(-90deg,var(--ivory-deep),transparent);}
 @media(max-width:760px){
-  .gallery-track img{height:100px;}
+  .gallery-track img{height:100px;width:100px;}
+  .gallery-track{gap:10px;}
   .gallery-rows{gap:10px;}
   .gallery-marquee-fade{width:40px;}
 }
@@ -447,16 +445,14 @@ section{position:relative;padding:120px 0;}
 /* ==========================================================================
    FOOTER + MUSIC + BACK-TO-TOP
    ========================================================================== */
-.music-widget{position:fixed;right:22px;bottom:22px;z-index:700;display:flex;flex-direction:column;align-items:flex-end;gap:14px;}
+.music-widget{position:fixed;right:22px;bottom:calc(22px + env(safe-area-inset-bottom));z-index:700;display:flex;flex-direction:column;align-items:flex-end;gap:14px;max-width:calc(100vw - 44px);}
 .music-fab{
   width:56px;height:56px;border-radius:50%;background:var(--sage);color:var(--paper);
   display:flex;align-items:center;justify-content:center;font-size:1.15rem;
   box-shadow:0 14px 30px -10px rgba(74,14,24,.55);border:none;cursor:pointer;transition:transform .3s;
 }
 .music-fab:hover{transform:translateY(-3px);}
-.music-fab i{transition:transform .3s;}
-.music-fab.playing i{animation:music-spin 3.2s linear infinite;}
-@keyframes music-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.music-fab.playing{box-shadow:0 14px 30px -10px rgba(74,14,24,.55), 0 0 0 3px rgba(122,31,43,.35);}
 .music-panel{
   width:250px;padding:20px 18px;background:var(--glass);backdrop-filter:blur(18px) saturate(140%);
   -webkit-backdrop-filter:blur(18px) saturate(140%);border:1px solid var(--glass-border);
@@ -511,6 +507,9 @@ footer .copyright{font-size:.72rem;opacity:.6;border-top:1px solid rgba(255,255,
   .hero-meta{gap:14px;font-size:.75rem;}
   .container{padding:0 18px;}
   .nav-logo{font-size:1.05rem;}
+  .music-widget{right:14px;gap:10px;}
+  .music-fab{width:48px;height:48px;font-size:1rem;}
+  .music-panel{width:min(220px, calc(100vw - 28px));padding:16px 14px;}
 }
 /* ==========================================================================
    ENTOURAGE — dark elegant roster (styled after the couple's printed card)
@@ -529,7 +528,8 @@ footer .copyright{font-size:.72rem;opacity:.6;border-top:1px solid rgba(255,255,
   font-size:clamp(2.6rem,6vw,4.2rem);
   font-style:italic;
   font-weight:400;
-  color:var(--sage-light);
+  color:var(--gold-light);
+  text-shadow:0 2px 18px rgba(0,0,0,.4);
   margin-top:8px;
 }
 .entourage-script{
@@ -641,7 +641,6 @@ footer .copyright{font-size:.72rem;opacity:.6;border-top:1px solid rgba(255,255,
       <div class="unit"><span class="num" id="cd-secs">00</span><span class="label">Secs</span></div>
     </div>
   </div>
-  <div class="scroll-indicator"><span>Scroll</span><div class="scroll-line"></div></div>
 </header>
 
 <!-- ============================================================
@@ -673,13 +672,14 @@ footer .copyright{font-size:.72rem;opacity:.6;border-top:1px solid rgba(255,255,
         <div class="detail-row"><i class="fa-solid fa-place-of-worship"></i><div><span class="dr-label">Venue</span>Chancery (Arzobispado de Pampanga)</div></div>
         <div class="detail-row"><i class="fa-solid fa-location-dot"></i><div><span class="dr-label">Address</span>142 San Jose Rd, City of San Fernando, Pampanga</div></div>
         <div class="detail-row"><i class="fa-regular fa-clock"></i><div><span class="dr-label">Time</span>3:00 PM — Please arrive by 2:30 PM</div></div>
-        <div class="detail-row"><i class="fa-solid fa-shirt"></i><div><span class="dr-label">Attire Guide — Semi-Formal</span>Male: Polo. <br>Female: Semi-formal attire, dress, or long gown in shades of Burgundy, Wine Red, Dusty Mauve, or Rose Pink.</div></div>
-        <div class="attire-swatches">
-          <span class="attire-swatch" style="background:#7A1F2B" title="Burgundy"></span>
-          <span class="attire-swatch" style="background:#9B2743" title="Wine Red"></span>
-          <span class="attire-swatch" style="background:#B5677A" title="Dusty Mauve"></span>
-          <span class="attire-swatch" style="background:#E1A0B0" title="Rose Pink"></span>
-        </div>
+        <div class="detail-row detail-row-attire"><i class="fa-solid fa-shirt"></i><div><span class="dr-label">Attire Guide — Semi-Formal</span>Male: Polo. <br>Female: Semi-formal attire, dress, or long gown in shades of Burgundy, Wine Red, Dusty Mauve, or Rose Pink.
+          <div class="attire-swatches">
+            <span class="attire-swatch" style="background:#7A1F2B" title="Burgundy"></span>
+            <span class="attire-swatch" style="background:#9B2743" title="Wine Red"></span>
+            <span class="attire-swatch" style="background:#B5677A" title="Dusty Mauve"></span>
+            <span class="attire-swatch" style="background:#E1A0B0" title="Rose Pink"></span>
+          </div>
+        </div></div>
       </div>
 
       <div class="detail-card glass fold reveal reveal-delay-1">
@@ -1020,7 +1020,7 @@ footer .copyright{font-size:.72rem;opacity:.6;border-top:1px solid rgba(255,255,
      → track list is defined in CONFIG.musicTracks in app.js.
      ============================================================ -->
 <div class="music-widget" id="music-widget">
-  <audio id="bg-audio" loop preload="none"></audio>
+  <audio id="bg-audio" preload="none"></audio>
   <div class="music-panel" id="music-panel">
     <p class="music-panel-title">Background Music</p>
     <div class="music-track-list" id="music-track-list"></div>

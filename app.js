@@ -65,6 +65,7 @@ function openEnvelope() {
     envelopeIntro.classList.add("hide");
     document.body.style.overflow = "";
   }, 700);
+  tryStartMusic();
 }
 // Auto-open after a short delay if the guest doesn't interact
 setTimeout(() => { if (!envelope.classList.contains("open")) openEnvelope(); }, 6000);
@@ -185,15 +186,29 @@ document.querySelectorAll(".flip-card").forEach((card) => {
 });
 
 /* ==========================================================================
-   GALLERY — randomly picks CONFIG.gallery.displayCount photos out of the
-   full CONFIG.gallery.count pool on every page load (so it's a different
-   mix each visit and stays light/smooth instead of animating all of them),
-   spreads them round-robin into CONFIG.gallery.maxRows auto-scrolling rows,
-   duplicates each row once for a seamless right-to-left loop, and wires
-   the lightbox to step through whichever photos were picked this time.
+   GALLERY — randomly picks photos out of the full CONFIG.gallery.count pool
+   on every page load (so it's a different mix each visit), spreads them
+   round-robin into auto-scrolling rows, duplicates each row once for a
+   seamless right-to-left loop, and wires the lightbox to step through
+   whichever photos were picked this time.
+
+   Smoothness strategy (this is what previously caused mobile lag):
+   - Every gallery photo now renders at a FIXED width+height (see CSS), so
+     the browser never has to reflow the row as each image finishes
+     loading — that reflow-while-scrolling was the main source of jank.
+   - On phones we show fewer photos in fewer rows (less to decode/animate
+     at once), detected via matchMedia rather than raw window width.
+   - The gallery isn't built until the section is about to scroll into
+     view (IntersectionObserver + rootMargin), so it never competes with
+     the hero/envelope/fonts for bandwidth on first load.
+   - The marquee animation is paused via animation-play-state whenever the
+     gallery scrolls out of view, so it isn't burning CPU/battery in the
+     background while the guest reads other sections.
    ========================================================================== */
 const galleryRowsEl = document.getElementById("gallery-rows");
+const galleryWrapEl = document.querySelector(".gallery-marquee-wrap");
 const galleryCfg = CONFIG.gallery;
+const isSmallScreen = window.matchMedia("(max-width: 640px)").matches;
 
 // build the full, ordered pool of { src, alt } for every available photo
 const galleryPool = Array.from({ length: galleryCfg.count }, (_, idx) => {
@@ -211,44 +226,13 @@ function shuffled(arr) {
   }
   return a;
 }
-const pickCount = Math.min(galleryCfg.displayCount, galleryPool.length);
+
+// Lighter load on phones: fewer simultaneous photos/rows to decode & animate.
+const displayCount = isSmallScreen ? Math.min(16, galleryCfg.displayCount) : galleryCfg.displayCount;
+const maxRows = isSmallScreen ? Math.min(2, galleryCfg.maxRows) : galleryCfg.maxRows;
+
+const pickCount = Math.min(displayCount, galleryPool.length);
 const galleryPhotos = shuffled(galleryPool).slice(0, pickCount);
-
-const numRows = Math.max(1, Math.min(galleryCfg.maxRows, galleryPhotos.length));
-
-// round-robin distribute photos into rows so each row gets a spread of ~equal size
-const rows = Array.from({ length: numRows }, () => []);
-galleryPhotos.forEach((photo, i) => rows[i % numRows].push(photo));
-
-rows.forEach((rowPhotos, rowIdx) => {
-  if (!rowPhotos.length) return;
-  const track = document.createElement("div");
-  track.className = "gallery-track";
-  // vary duration per row so rows don't all move in lockstep
-  const duration = 34 + rowIdx * 9 + rowPhotos.length * 0.6;
-  track.style.animationDuration = `${duration}s`;
-
-  rowPhotos.forEach((photo) => {
-    const img = document.createElement("img");
-    img.loading = "lazy";
-    img.src = photo.src;
-    img.alt = photo.alt;
-    const originalIndex = galleryPhotos.indexOf(photo);
-    img.addEventListener("click", () => openLightbox(originalIndex));
-    track.appendChild(img);
-  });
-
-  // duplicate the row once so the CSS animation (translateX 0 -> -50%) loops seamlessly
-  Array.from(track.children).forEach((img) => {
-    const clone = img.cloneNode(true);
-    clone.removeAttribute("loading");
-    clone.setAttribute("aria-hidden", "true");
-    clone.setAttribute("tabindex", "-1");
-    track.appendChild(clone);
-  });
-
-  galleryRowsEl.appendChild(track);
-});
 
 const lightbox = document.getElementById("lightbox");
 const lbImg = document.getElementById("lb-img");
@@ -269,6 +253,82 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowRight") openLightbox((lbIndex + 1) % galleryPhotos.length);
   if (e.key === "ArrowLeft") openLightbox((lbIndex - 1 + galleryPhotos.length) % galleryPhotos.length);
 });
+
+let galleryBuilt = false;
+function buildGallery() {
+  if (galleryBuilt) return;
+  galleryBuilt = true;
+
+  const numRows = Math.max(1, Math.min(maxRows, galleryPhotos.length));
+
+  // round-robin distribute photos into rows so each row gets a spread of ~equal size
+  const rows = Array.from({ length: numRows }, () => []);
+  galleryPhotos.forEach((photo, i) => rows[i % numRows].push(photo));
+
+  const tracks = [];
+  rows.forEach((rowPhotos, rowIdx) => {
+    if (!rowPhotos.length) return;
+    const track = document.createElement("div");
+    track.className = "gallery-track";
+    // vary duration per row so rows don't all move in lockstep
+    const duration = 34 + rowIdx * 9 + rowPhotos.length * 0.6;
+    track.style.animationDuration = `${duration}s`;
+
+    rowPhotos.forEach((photo) => {
+      const img = document.createElement("img");
+      img.decoding = "async";
+      img.src = photo.src;
+      img.alt = photo.alt;
+      const originalIndex = galleryPhotos.indexOf(photo);
+      img.addEventListener("click", () => openLightbox(originalIndex));
+      track.appendChild(img);
+    });
+
+    // duplicate the row once so the CSS animation (translateX 0 -> -50%) loops seamlessly
+    Array.from(track.children).forEach((img) => {
+      const clone = img.cloneNode(true);
+      clone.setAttribute("aria-hidden", "true");
+      clone.setAttribute("tabindex", "-1");
+      track.appendChild(clone);
+    });
+
+    galleryRowsEl.appendChild(track);
+    tracks.push(track);
+  });
+
+  // pause the marquee whenever it's scrolled off-screen so it doesn't
+  // burn CPU/battery (and compete for main-thread time) in the background
+  if (galleryWrapEl && "IntersectionObserver" in window) {
+    const visibilityObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          tracks.forEach((t) => t.classList.toggle("paused", !entry.isIntersecting));
+        });
+      },
+      { threshold: 0 }
+    );
+    visibilityObserver.observe(galleryWrapEl);
+  }
+}
+
+// Defer building the gallery until it's about to scroll into view, so it
+// never competes with the hero/envelope/fonts for bandwidth on first load.
+if (galleryWrapEl && "IntersectionObserver" in window) {
+  const buildObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          buildGallery();
+          buildObserver.disconnect();
+        }
+      });
+    },
+    { rootMargin: "600px 0px" }
+  );
+  buildObserver.observe(galleryWrapEl);
+} else {
+  buildGallery();
+}
 
 /* ==========================================================================
    BACKGROUND MUSIC WIDGET
@@ -310,6 +370,20 @@ function setPlayingUI(isPlaying) {
   musicFab.classList.toggle("playing", isPlaying);
 }
 
+// Browsers block real autoplay-with-sound until the guest has interacted
+// with the page at least once — there's no way around that from code, it's
+// a hard browser policy. So instead of waiting for someone to find the
+// music button, we start playback on the guest's very first interaction
+// with the site (tapping the envelope open counts), which is effectively
+// "as soon as they access the site" in practice.
+function tryStartMusic() {
+  if (activeTrackIndex !== null) return;
+  selectTrack(0);
+}
+["pointerdown", "keydown"].forEach((evt) => {
+  document.addEventListener(evt, tryStartMusic, { once: true, passive: true });
+});
+
 musicFab.addEventListener("click", () => musicPanel.classList.toggle("open"));
 document.addEventListener("click", (e) => {
   if (!document.getElementById("music-widget").contains(e.target)) musicPanel.classList.remove("open");
@@ -328,6 +402,15 @@ musicPlayBtn.addEventListener("click", () => {
 });
 bgAudio.addEventListener("play", () => setPlayingUI(true));
 bgAudio.addEventListener("pause", () => setPlayingUI(false));
+
+// Auto-advance to the next track once one finishes, looping back to the
+// first track after the last one. This only fires on natural end-of-track
+// (the "ended" event) — pausing manually never triggers it, so playback
+// only stops when the guest presses pause themselves.
+bgAudio.addEventListener("ended", () => {
+  const nextIndex = (activeTrackIndex + 1) % CONFIG.musicTracks.length;
+  selectTrack(nextIndex);
+});
 
 musicVolume.addEventListener("input", () => { bgAudio.volume = Number(musicVolume.value); });
 bgAudio.volume = Number(musicVolume.value);
