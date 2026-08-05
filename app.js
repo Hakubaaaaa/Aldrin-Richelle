@@ -295,8 +295,7 @@ function buildMarqueeGallery() {
       img.decoding = "async";
       img.src = photo.src;
       img.alt = photo.alt;
-      const originalIndex = galleryPhotos.indexOf(photo);
-      img.addEventListener("click", () => openLightbox(originalIndex));
+      img.dataset.index = String(galleryPhotos.indexOf(photo));
       track.appendChild(img);
     });
 
@@ -306,6 +305,15 @@ function buildMarqueeGallery() {
       clone.setAttribute("aria-hidden", "true");
       clone.setAttribute("tabindex", "-1");
       track.appendChild(clone);
+    });
+
+    // Attach click handlers AFTER duplicating: cloneNode() copies HTML
+    // attributes but not JS event listeners, so doing this beforehand left
+    // the cloned half of each row unclickable — which is genuinely visible
+    // on screen half the time, not just an off-screen duplicate.
+    track.querySelectorAll("img").forEach((img) => {
+      const idx = Number(img.dataset.index);
+      img.addEventListener("click", () => openLightbox(idx));
     });
 
     galleryRowsEl.appendChild(track);
