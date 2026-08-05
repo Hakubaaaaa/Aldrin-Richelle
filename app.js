@@ -11,7 +11,7 @@ const CONFIG = {
   // Google Apps Script (see google-apps-script.gs + SETUP-GUIDE.md).
   // Leave as-is to run in "demo mode" (submissions are only logged
   // to the browser console and shown as a success message).
-  appsScriptUrl: "https://script.google.com/macros/s/AKfycbz_q7-dthDD4AMapH_SNzaa-opKjL7RamrbVGvzIxzXVGv_f-t-rDi7sDR-1GtQrJI/exec",
+  appsScriptUrl: "https://script.google.com/macros/s/AKfycbwDi4G488dmhoOxNnVRlFNex4NUGAkOzC-HP6jQL2zuonW6ZZ8SPNupl0BsWTFgBts/exec",
 
   // Background music choices for the music widget (bottom-right button).
   // Each "src" must point to an actual MP3 file — add your own royalty-free
