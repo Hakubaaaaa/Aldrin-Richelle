@@ -419,6 +419,30 @@ section{position:relative;padding:120px 0;}
   .gallery-rows{gap:10px;}
   .gallery-marquee-fade{width:40px;}
 }
+/* Phone: static masonry grid instead of the moving marquee — each photo
+   keeps its own natural aspect ratio (no cropping), laid into balanced
+   columns that fit the screen width exactly, no animation. */
+@media(max-width:640px){
+  .gallery-marquee-wrap{padding:10px 0 0;}
+  .gallery-marquee-fade{display:none;}
+  .gallery-rows.gallery-masonry{
+    display:block;
+    columns:2;
+    column-gap:10px;
+    padding:0 20px;
+  }
+  .gallery-masonry img{
+    width:100%;height:auto;display:block;
+    margin:0 0 10px;
+    border-radius:var(--radius-md);
+    object-fit:cover;
+    cursor:pointer;
+    box-shadow:var(--shadow-card);
+    background:var(--ivory-deep);
+    break-inside:avoid;
+    -webkit-column-break-inside:avoid;
+  }
+}
 #lightbox{
   position:fixed;inset:0;background:rgba(20,18,14,.94);z-index:800;
   display:flex;align-items:center;justify-content:center;

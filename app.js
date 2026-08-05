@@ -186,24 +186,14 @@ document.querySelectorAll(".flip-card").forEach((card) => {
 });
 
 /* ==========================================================================
-   GALLERY — randomly picks photos out of the full CONFIG.gallery.count pool
-   on every page load (so it's a different mix each visit), spreads them
-   round-robin into auto-scrolling rows, duplicates each row once for a
-   seamless right-to-left loop, and wires the lightbox to step through
-   whichever photos were picked this time.
-
-   Smoothness strategy (this is what previously caused mobile lag):
-   - Every gallery photo now renders at a FIXED width+height (see CSS), so
-     the browser never has to reflow the row as each image finishes
-     loading — that reflow-while-scrolling was the main source of jank.
-   - On phones we show fewer photos in fewer rows (less to decode/animate
-     at once), detected via matchMedia rather than raw window width.
-   - The gallery isn't built until the section is about to scroll into
-     view (IntersectionObserver + rootMargin), so it never competes with
-     the hero/envelope/fonts for bandwidth on first load.
-   - The marquee animation is paused via animation-play-state whenever the
-     gallery scrolls out of view, so it isn't burning CPU/battery in the
-     background while the guest reads other sections.
+   GALLERY
+   Desktop: randomly picks photos, spreads them into auto-scrolling marquee
+   rows (duplicated for a seamless loop).
+   Phone: the marquee doesn't work well on small screens — a moving row is
+   hard to focus on when the visible width is so narrow — so phones instead
+   get a static masonry grid (CSS columns) that lays each photo out at its
+   own natural aspect ratio, uncropped, filling the screen width with no
+   animation at all.
    ========================================================================== */
 const galleryRowsEl = document.getElementById("gallery-rows");
 const galleryWrapEl = document.querySelector(".gallery-marquee-wrap");
@@ -227,9 +217,9 @@ function shuffled(arr) {
   return a;
 }
 
-// Lighter load on phones: fewer simultaneous photos/rows to decode & animate.
+// Lighter load on phones: fewer simultaneous photos to decode at once.
 const displayCount = isSmallScreen ? Math.min(16, galleryCfg.displayCount) : galleryCfg.displayCount;
-const maxRows = isSmallScreen ? Math.min(2, galleryCfg.maxRows) : galleryCfg.maxRows;
+const maxRows = Math.min(3, galleryCfg.maxRows);
 
 const pickCount = Math.min(displayCount, galleryPool.length);
 const galleryPhotos = shuffled(galleryPool).slice(0, pickCount);
@@ -259,6 +249,32 @@ function buildGallery() {
   if (galleryBuilt) return;
   galleryBuilt = true;
 
+  if (isSmallScreen) {
+    buildMasonryGallery();
+  } else {
+    buildMarqueeGallery();
+  }
+}
+
+// ---- Phone: static masonry grid, no animation, natural photo shapes ----
+function buildMasonryGallery() {
+  galleryRowsEl.classList.add("gallery-masonry");
+  const fades = document.querySelectorAll(".gallery-marquee-fade");
+  fades.forEach((f) => (f.style.display = "none"));
+
+  galleryPhotos.forEach((photo, i) => {
+    const img = document.createElement("img");
+    img.decoding = "async";
+    img.loading = "lazy";
+    img.src = photo.src;
+    img.alt = photo.alt;
+    img.addEventListener("click", () => openLightbox(i));
+    galleryRowsEl.appendChild(img);
+  });
+}
+
+// ---- Desktop: auto-scrolling marquee rows ----
+function buildMarqueeGallery() {
   const numRows = Math.max(1, Math.min(maxRows, galleryPhotos.length));
 
   // round-robin distribute photos into rows so each row gets a spread of ~equal size
@@ -270,16 +286,8 @@ function buildGallery() {
     if (!rowPhotos.length) return;
     const track = document.createElement("div");
     track.className = "gallery-track";
-    // Vary duration per row so rows don't all move in lockstep. Phones get
-    // noticeably slower/longer durations than the raw distance would need —
-    // a narrow phone screen shows much less of the row at once, so the same
-    // px/sec speed that looks calm on a wide desktop screen reads as "too
-    // fast to see" on mobile, since each photo crosses the visible screen
-    // in far less time. Slowing mobile down roughly matches how long a
-    // photo stays visible on desktop.
-    const duration = isSmallScreen
-      ? 60 + rowIdx * 14 + rowPhotos.length * 1.2
-      : 34 + rowIdx * 9 + rowPhotos.length * 0.6;
+    // vary duration per row so rows don't all move in lockstep
+    const duration = 34 + rowIdx * 9 + rowPhotos.length * 0.6;
     track.style.animationDuration = `${duration}s`;
 
     rowPhotos.forEach((photo) => {
