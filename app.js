@@ -270,8 +270,16 @@ function buildGallery() {
     if (!rowPhotos.length) return;
     const track = document.createElement("div");
     track.className = "gallery-track";
-    // vary duration per row so rows don't all move in lockstep
-    const duration = 34 + rowIdx * 9 + rowPhotos.length * 0.6;
+    // Vary duration per row so rows don't all move in lockstep. Phones get
+    // noticeably slower/longer durations than the raw distance would need —
+    // a narrow phone screen shows much less of the row at once, so the same
+    // px/sec speed that looks calm on a wide desktop screen reads as "too
+    // fast to see" on mobile, since each photo crosses the visible screen
+    // in far less time. Slowing mobile down roughly matches how long a
+    // photo stays visible on desktop.
+    const duration = isSmallScreen
+      ? 60 + rowIdx * 14 + rowPhotos.length * 1.2
+      : 34 + rowIdx * 9 + rowPhotos.length * 0.6;
     track.style.animationDuration = `${duration}s`;
 
     rowPhotos.forEach((photo) => {
