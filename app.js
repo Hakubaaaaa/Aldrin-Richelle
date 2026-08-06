@@ -186,6 +186,32 @@ document.querySelectorAll(".flip-card").forEach((card) => {
 });
 
 /* ==========================================================================
+   CONTACT — tap a phone number to copy it, with a brief "Copied!" toast
+   ========================================================================== */
+document.querySelectorAll(".contact-card .phone[data-phone]").forEach((btn) => {
+  btn.addEventListener("click", async () => {
+    const number = btn.dataset.phone;
+    try {
+      await navigator.clipboard.writeText(number);
+    } catch (err) {
+      // Clipboard API can be unavailable (e.g. local file:// testing) —
+      // fall back to the older execCommand approach via a hidden textarea.
+      const temp = document.createElement("textarea");
+      temp.value = number;
+      temp.style.position = "fixed";
+      temp.style.opacity = "0";
+      document.body.appendChild(temp);
+      temp.select();
+      try { document.execCommand("copy"); } catch (fallbackErr) { /* ignore */ }
+      document.body.removeChild(temp);
+    }
+    btn.classList.add("copied");
+    clearTimeout(btn._copyTimeout);
+    btn._copyTimeout = setTimeout(() => btn.classList.remove("copied"), 1600);
+  });
+});
+
+/* ==========================================================================
    GALLERY
    Desktop: randomly picks photos, spreads them into auto-scrolling marquee
    rows (duplicated for a seamless loop).
