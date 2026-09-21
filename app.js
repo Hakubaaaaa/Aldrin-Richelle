@@ -11,7 +11,7 @@ const CONFIG = {
   // Google Apps Script (see google-apps-script.gs + SETUP-GUIDE.md).
   // Leave as-is to run in "demo mode" (submissions are only logged
   // to the browser console and shown as a success message).
-  appsScriptUrl: "https://script.google.com/macros/s/AKfycbyI4jiGIKp0NS_2oaReS6-QFvEcgOba0fX6SlAcVnXTHA2LcJopDayP39d4gA1kXBni/exec",
+  appsScriptUrl: "https://script.google.com/macros/s/AKfycbwDi4G488dmhoOxNnVRlFNex4NUGAkOzC-HP6jQL2zuonW6ZZ8SPNupl0BsWTFgBts/exec",
 
   // Background music choices for the music widget (bottom-right button).
   // Each "src" must point to an actual MP3 file — add your own royalty-free
@@ -510,6 +510,14 @@ rsvpForm.addEventListener("submit", async (e) => {
     await submitToBackend(payload);
     rsvpForm.style.display = "none";
     document.getElementById("rsvp-success").style.display = "block";
+    const monogramVideo = document.querySelector(".rsvp-monogram-video");
+    if (monogramVideo) {
+      monogramVideo.currentTime = 0;
+      monogramVideo.play().catch(() => {
+        // Autoplay can occasionally be blocked; the video's last frame
+        // (the settled monogram) is still shown as a static fallback.
+      });
+    }
   } catch (err) {
     console.error("RSVP submission failed:", err);
     label.textContent = originalLabel;
