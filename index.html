@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link rel="icon" type="image/png" href="logo/logo.png">
+<link rel="icon" type="image/png" href="logo/favicon.png">
 
 <style>
 :root{
@@ -327,7 +327,10 @@ section{position:relative;padding:120px 0;}
 .rsvp-submit{width:100%;justify-content:center;}
 .form-note{font-size:.72rem;color:var(--ink-soft);margin-top:14px;text-align:center;}
 #rsvp-success{display:none;text-align:center;padding:50px 30px;}
-#rsvp-success i{font-size:2.6rem;color:var(--sage);margin-bottom:14px;}
+.rsvp-monogram-video{
+  width:min(100%, 300px);border-radius:var(--radius-md);
+  box-shadow:var(--shadow-card);margin-bottom:20px;
+}
 #rsvp-success h3{font-size:1.7rem;}
 #rsvp-success p{color:var(--ink-soft);margin-top:8px;}
 
@@ -711,12 +714,13 @@ footer .site-credit{font-size:.62rem;opacity:.4;margin-top:8px;}
         <div class="detail-row"><i class="fa-solid fa-place-of-worship"></i><div><span class="dr-label">Venue</span>Chancery (Arzobispado de Pampanga)</div></div>
         <div class="detail-row"><i class="fa-solid fa-location-dot"></i><div><span class="dr-label">Address</span>142 San Jose Rd, City of San Fernando, Pampanga</div></div>
         <div class="detail-row"><i class="fa-regular fa-clock"></i><div><span class="dr-label">Time</span>3:00 PM — Please arrive by 2:30 PM</div></div>
-        <div class="detail-row detail-row-attire"><i class="fa-solid fa-shirt"></i><div><span class="dr-label">Attire Guide — Semi-Formal</span>Male: Polo. <br>Female: Dress, or long Gown <br>In shades of Burgundy, Wine Red, Dusty Mauve, or Rose Pink.
+        <div class="detail-row detail-row-attire"><i class="fa-solid fa-shirt"></i><div><span class="dr-label">Attire Guide — Semi-Formal</span>Male: Polo. <br>Female: Dress, or long Gown <br>In shades of Burgundy, Merlot, Wine, Rosewood, or Dusty Rose.
           <div class="attire-swatches">
-            <span class="attire-swatch" style="background:#7A1F2B" title="Burgundy"></span>
-            <span class="attire-swatch" style="background:#9B2743" title="Wine Red"></span>
-            <span class="attire-swatch" style="background:#B5677A" title="Dusty Mauve"></span>
-            <span class="attire-swatch" style="background:#E1A0B0" title="Rose Pink"></span>
+            <span class="attire-swatch" style="background:#743744" title="Burgundy"></span>
+            <span class="attire-swatch" style="background:#743744" title="Merlot"></span>
+            <span class="attire-swatch" style="background:#6D3444" title="Wine"></span>
+            <span class="attire-swatch" style="background:#70434B" title="Rosewood"></span>
+            <span class="attire-swatch" style="background:#C98286" title="Dusty Rose"></span>
           </div>
         </div></div>
       </div>
@@ -767,14 +771,14 @@ footer .site-credit{font-size:.62rem;opacity:.4;margin-top:8px;}
           <p class="entourage-name">Mr. Dariel Kim Candelaria</p>
           <p class="entourage-name">Mr. Ramil A. Garcia</p>
           <p class="entourage-name">Mr. Juanito C. Garcia</p>
-          <p class="entourage-name">Mr. Ronald Cortez</p>
-          <p class="entourage-name">Mr. Neil Tienzo</p>
+          <p class="entourage-name">Mr. Ronald M. Cortez</p>
+          <p class="entourage-name">Mr. Neil A. Tienzo</p>
           <p class="entourage-name">Mr. Paul Nabong</p>
           <p class="entourage-name">Mr. Ramil D. Garcia</p>
-          <p class="entourage-name">Mr. Delfin Taruc</p>
+          <p class="entourage-name">Mr. Delfin DC Taruc</p>
           <p class="entourage-name">Mr. Romulo G. Manalili</p>
           <p class="entourage-name">Mr. Dionisio C. Manalili</p>
-          <p class="entourage-name">Mr. Maximiano Nuque</p>
+          <p class="entourage-name">Mr. Maximiano B. Nuque</p>
           <p class="entourage-name">Mr. Roberto S. Miranda</p>
           <p class="entourage-name">Mr. Nemencio P. Manankil</p>
         </div>
@@ -785,9 +789,9 @@ footer .site-credit{font-size:.62rem;opacity:.4;margin-top:8px;}
           <p class="entourage-name">Mrs. Raquel L. Gonzales</p>
           <p class="entourage-name">Mrs. Evelyn L. Tienzo</p>
           <p class="entourage-name">Mrs. Cecilia D. Bernal</p>
-          <p class="entourage-name">Mrs. Rosario M. Pingul</p>
+          <p class="entourage-name">Mrs. Rosario M. Pingol</p>
           <p class="entourage-name">Mrs. Mary Jane B. Ibe</p>
-          <p class="entourage-name">Ms. Marie</p>
+          <p class="entourage-name">Ms. Marie Manliclic</p>
           <p class="entourage-name">Mrs. Liezel M. Esteva</p>
           <p class="entourage-name">Mrs. Rose A. Gutierrez</p>
           <p class="entourage-name">Mrs. Perlita S. Maglalag</p>
@@ -802,26 +806,29 @@ footer .site-credit{font-size:.62rem;opacity:.4;margin-top:8px;}
       <div class="entourage-columns entourage-columns-list">
         <div class="entourage-col">
           <div class="entourage-col-title">Maid of Honors</div>
-          <p class="entourage-name">Rinrin G. Taruc</p>
           <p class="entourage-name">Rica G. Taruc</p>
+          <p class="entourage-name">Rinrin G. Taruc</p>
         </div>
         <div class="entourage-col">
           <div class="entourage-col-title">Bestmans</div>
-          <p class="entourage-name">Azarus John N. Mendoza</p>
           <p class="entourage-name">Aljon O. Quiroz</p>
+          <p class="entourage-name">Azarus John N. Mendoza</p>
         </div>
       </div>
       <div class="entourage-single-row" style="margin-top:34px;">
-        <div class="entourage-col-title">Veil Sponsor</div>
+        <div class="entourage-col-title">Veil Sponsors</div>
         <p class="entourage-name">Ailyn O. Quiroz &amp; Roberto Pitapit</p>
+        <p class="entourage-name">Juselle Ann G. Lulu &amp; Kenshin Bryle Q. Victoria</p>
       </div>
       <div class="entourage-single-row">
-        <div class="entourage-col-title">Candle Sponsor</div>
+        <div class="entourage-col-title">Candle Sponsors</div>
         <p class="entourage-name">Avonne Q. Manlapaz &amp; Gil Manlapaz Jr.</p>
+        <p class="entourage-name">Tricia E. Lopez &amp; Kenneth Y. Simbulan</p>
       </div>
       <div class="entourage-single-row">
-        <div class="entourage-col-title">Cord Sponsor</div>
-        <p class="entourage-name">Aira Q. Muca &amp; Raphael Muca</p>
+        <div class="entourage-col-title">Cord Sponsors</div>
+        <p class="entourage-name">Aira Q. Muca &amp; Raphael C. Muca</p>
+        <p class="entourage-name">Trixy M. Balajadia &amp; Benedict G. Taruc</p>
       </div>
     </div>
 
@@ -841,25 +848,19 @@ footer .site-credit{font-size:.62rem;opacity:.4;margin-top:8px;}
     <div class="entourage-columns entourage-columns-list reveal" style="margin-bottom:44px;">
       <div class="entourage-col">
         <div class="entourage-col-title">Bridesmaids</div>
-        <p class="entourage-name">Juselle Ann G. Lulu</p>
-        <p class="entourage-name">Tricia E. Lopez</p>
         <p class="entourage-name">Daeza Dae T. Parungao</p>
         <p class="entourage-name">Karen M. Garcia</p>
-        <p class="entourage-name">Jelina Baniaga</p>
-        <p class="entourage-name">Trixy M. Balajadia</p>
-        <p class="entourage-name">Ronalyn P. Liwanag</p>
         <p class="entourage-name">Jemilyn M. Isip</p>
+        <p class="entourage-name">Ronalyn P. Liwanag</p>
+        <p class="entourage-name">Jelina B. Baniaga</p>
         <p class="entourage-name">Wendy T. Manalastas</p>
         <p class="entourage-name">Hannah Louise N. Jimenez</p>
       </div>
       <div class="entourage-col">
         <div class="entourage-col-title">Groomsmen</div>
-        <p class="entourage-name">Kenshin Bryle O. Quiroz</p>
-        <p class="entourage-name">Kenneth Simbulan</p>
         <p class="entourage-name">Emmanuel Joseph Garcia</p>
         <p class="entourage-name">Rovy B. Garcia</p>
         <p class="entourage-name">Aldrin T. Salas</p>
-        <p class="entourage-name">Benedict G. Taruc</p>
         <p class="entourage-name">Marvin T. Sumat</p>
         <p class="entourage-name">Adrian Dc. Tubig</p>
         <p class="entourage-name">Jefferson P. Reyes</p>
@@ -875,10 +876,11 @@ footer .site-credit{font-size:.62rem;opacity:.4;margin-top:8px;}
         <p class="entourage-name">Ramielle T. Garcia</p>
         <p class="entourage-name">Yanis Adah P. Pineda</p>
         <p class="entourage-name">Sophia Amara Miclat</p>
+        <p class="entourage-name">Athalia L. Nuque</p>
+        <p class="entourage-name">Lhianna D. Garcia</p>
       </div>
       <div class="entourage-col">
         <div class="entourage-col-title">Bearers</div>
-        <p class="entourage-name">Art L. Nuque</p>
         <p class="entourage-name">Lance Jefferson D. Taruc</p>
         <p class="entourage-name">Dwyne Simon L. Manalili</p>
         <p class="entourage-name">Calix Jace M. Mendoza</p>
@@ -930,7 +932,7 @@ footer .site-credit{font-size:.62rem;opacity:.4;margin-top:8px;}
         <p class="form-note">Your response is recorded securely. If you leave your email, you'll get a confirmation message from Aldrin &amp; Richelle right away.</p>
       </form>
       <div id="rsvp-success">
-        <i class="fa-solid fa-heart"></i>
+        <video class="rsvp-monogram-video" src="rsvp-monogram.mp4" autoplay muted playsinline></video>
         <h3>Thank you for your RSVP!</h3>
         <p>We've received your response and can't wait to celebrate with you.</p>
       </div>
@@ -951,7 +953,7 @@ footer .site-credit{font-size:.62rem;opacity:.4;margin-top:8px;}
     <div class="faq-wrap reveal">
       <div class="faq-item">
         <button class="faq-q">What should I wear? <i class="fa-solid fa-plus"></i></button>
-        <div class="faq-a"><p>The dress code for our wedding is semi-formal. We ask that gentlemen wear a polo or collared shirt, and ladies wear a dress or long gown tailored to our palette of Burgundy, Wine Red, Dusty Mauve, or Rose Pink.</p></div>
+        <div class="faq-a"><p>The dress code for our wedding is semi-formal. We ask that gentlemen wear a polo or collared shirt, and ladies wear a dress or long gown tailored to our palette of Burgundy, Merlot, Wine, Rosewood, or Dusty Rose.</p></div>
       </div>
       <div class="faq-item">
         <button class="faq-q">Can I bring a plus one? <i class="fa-solid fa-plus"></i></button>
@@ -1132,6 +1134,7 @@ footer .site-credit{font-size:.62rem;opacity:.4;margin-top:8px;}
     <div class="foot-social">
     </div>
     <p class="copyright">&copy; 2026 Aldrin &amp; Richelle's Wedding.</p>
+    <p class="site-credit">Site by Hakubaaaaa</p>
   </div>
 </footer>
 
